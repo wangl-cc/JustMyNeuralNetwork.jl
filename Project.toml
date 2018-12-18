@@ -1,0 +1,8 @@
+name = "NeuralNetwork"
+uuid = "cd5e38fc-0270-11e9-321d-fd1bf3759d4b"
+authors = ["wangl-cc <40141251+wangl-cc@users.noreply.github.com>"]
+version = "0.1.0"
+
+[deps]
+CuArrays = "3a865a2d-5b23-5a0f-bc46-62713ec82fae"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
