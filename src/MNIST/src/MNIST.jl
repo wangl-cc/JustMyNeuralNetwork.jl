@@ -1,6 +1,7 @@
 module MNIST
 export trainimages, testimages,
-       trainlabels, testlabels
+       trainlabels, testlabels,
+       traindata,   testdata
 
 const IMAGEOFFSET = 16
 const LABELOFFSET = 8
@@ -66,13 +67,13 @@ end
 function trainimages()
     io = IOBuffer(read(TRAINIMAGES))
     _, nimages, nrows, ncols = imageheader(io)
-    [getimage(io) for _ in 1:nimages]
+    [Int.(getimage(io)) for _ in 1:nimages]
 end
 
 function testimages()
     io = IOBuffer(read(TESTIMAGES))
     _, nimages, nrows, ncols = imageheader(io)
-    [getimage(io) for _ in 1:nimages]
+    [Int.(getimage(io)) for _ in 1:nimages]
 end
 
 function trainlabels()
@@ -86,5 +87,9 @@ function testlabels()
     _, nlabels = labelheader(io)
     [getlabel(io) for _ in 1:nlabels]
 end
+
+traindata() = collect(zip(vec.(trainimages()), trainlabels()))
+testdata()  = collect(zip(vec.(testimages()), testlabels()))
+
 
 end # module
