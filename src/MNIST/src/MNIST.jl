@@ -41,7 +41,12 @@ function getimage(io::IO, index::Integer)
     return getimage(io)
 end
 
-getlabel(io::IO) = Int(read(io, UInt8))
+function getlabel(io::IO)
+    i = read(io, UInt8)
+    v = zeros(10)
+    v[i+1] = 1.
+    return v
+end
 
 function getlabel(io::IO, index::Integer)
     seek(io, LABELOFFSET + (index - 1))

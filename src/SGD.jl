@@ -3,7 +3,6 @@ using ForwardDiff
 using LinearAlgebra
 
 const ∇ = ForwardDiff.gradient
-const d = ForwardDiff.derivative
 
 function DSGD!(net::Chain, c::Function, traindata::AbstractArray, testdata::AbstractArray, epochs::Integer, minibatchsize::Integer; η_max::Real=50)
     t = test(net, testdata)
@@ -23,7 +22,7 @@ function DSGD!(net::Chain, c::Function, traindata::AbstractArray, testdata::Abst
     end
     η
 end
-            
+
 function test(net::Chain, testdata::AbstractArray)
     count = 0
     for xy in testdata
@@ -65,10 +64,10 @@ function GD!(net::Chain, c::Function, traindata::AbstractArray; η::Real=1)
     end
 end
 
-function backprop(net::Chain, c::Function, x::Vector{<:Real}, y::Integer)
+function backprop(net::Chain, c::Function, x::Vector{R}, y::Vector{R})where R<:Real
     a = x
-    as = Vector{Vector{Float64}}()
-    zs = Vector{Vector{Float64}}()
+    as = Vector{Vector{R}}()
+    zs = Vector{Vector{R}}()
     push!(as, deepcopy(a))
     for l in net.layers
         z = l(a)
@@ -76,23 +75,21 @@ function backprop(net::Chain, c::Function, x::Vector{<:Real}, y::Integer)
         push!(zs, z)
         push!(as, deepcopy(a))
     end
-    vy  = zeros(length(as[end])); vy[y+1]=1.
-    #dfs = [(l.f==σ ? dσ : z->ForwardDiff.derivative(l.f, z)) for l in net.layers]
     δs = similar(zs)
-    δs[end] = ∇(a->Cost(c, a, vy), as[end]) .* dσ.(zs[end])
+    δs[end] = ∇(a->cost(c, a, y), as[end]) .* dσ.(zs[end])
     for i in length(net.layers)-1
         δs[end-i] = transpose(net.layers[end-i+1].W) * δs[end-i+1] .* dσ.(zs[end-i])
     end
-    ∂W = Vector{Matrix{Float64}}()
+    ∂W = Vector{Matrix{R}}()
     for k in eachindex(δs)
         push!(∂W, zeros(length(δs[k]), length(as[k])))
         for i in eachindex(δs[k]), j in eachindex(as[k])
             ∂W[k][i, j] = δs[k][i] * as[k][j]
         end
     end
-    return δs, ∂W
+    return δs, ∂W # δs equals to δs
 end
 
-function Cost(c::Function, a::Vector{<:Real}, y::Vector{<:Real})
+function cost(c::Function, a::Vector{R}, y::Vector{R})where R<:Real
     return sum(c, y.-a)/length(a)
 end
