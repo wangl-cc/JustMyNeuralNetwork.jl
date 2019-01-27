@@ -27,7 +27,7 @@ function test(net::Chain, testdata::AbstractArray)
     count = 0
     for xy in testdata
         py = net(xy[1])
-        py[xy[2]+1] == maximum(py) && (count+=1)
+        findmax(xy[2])[2] == findmax(py)[2] && (count+=1)
     end
     return count/length(testdata)
 end
